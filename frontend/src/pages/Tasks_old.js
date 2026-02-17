@@ -77,7 +77,11 @@ const Tasks = () => {
 
   const handleSort = (field) => {
     const newOrder = filters.sortBy === field && filters.sortOrder === 'asc' ? 'desc' : 'asc';
-    setFilters(prev => ({ ...prev, sortBy: field, sortOrder: newOrder }));
+    setFilters(prev => ({ 
+      ...prev, 
+      sortBy: field, 
+      sortOrder: newOrder 
+    }));
   };
 
   const deleteTask = async (taskId) => {
@@ -130,10 +134,10 @@ const Tasks = () => {
     let start = Math.max(1, page - Math.floor(maxVisible / 2));
     let end = Math.min(pages, start + maxVisible - 1);
     
-    if (end - start < maxVisible) {
-      end = start + (maxVisible - 1);
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pageNumbers.push(i);
     }
@@ -157,40 +161,46 @@ const Tasks = () => {
           </button>
         </div>
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{(page - 1) * pagination.limit + 1}</span> to{' '}
-            <span className="font-medium">{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
-            <span className="font-medium">{pagination.total}</span> results
-          </p>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-            <button
-              onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, page - 1) }))}
-              disabled={page === 1}
-              className="relative inline-flex items-center px-2 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            {pageNumbers.map((pageNum) => (
+          <div>
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{(page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-medium">
+                {Math.min(page * pagination.limit, pagination.total)}
+              </span>{' '}
+              of <span className="font-medium">{pagination.total}</span> results
+            </p>
+          </div>
+          <div>
+            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
               <button
-                key={pageNum}
-                onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
-                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                  pageNum === page
-                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                }`}
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, page - 1) }))}
+                disabled={page === 1}
+                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
               >
-                {pageNum}
+                Previous
               </button>
-            ))}
-            <button
-              onClick={() => setPagination(prev => ({ ...prev, page: Math.min(pages, page + 1) }))}
-              disabled={page === pages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </nav>
+              {pageNumbers.map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
+                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    pageNum === page
+                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              <button
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(pages, page + 1) }))}
+                disabled={page === pages}
+                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </nav>
+          </div>
         </div>
       </div>
     );
@@ -203,7 +213,7 @@ const Tasks = () => {
       <div className="flex-1 overflow-auto">
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center">
               <h1 className="text-2xl font-semibold text-gray-900">My Tasks</h1>
               <Link
                 to="/add-task"
@@ -213,7 +223,9 @@ const Tasks = () => {
                 Add Task
               </Link>
             </div>
-            
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             {/* Search and Filters */}
             <div className="bg-white shadow rounded-lg p-4 mb-6">
               <form onSubmit={handleSearch} className="space-y-4">
@@ -242,7 +254,7 @@ const Tasks = () => {
                 </div>
                 
                 {showFilters && (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <select
                       name="status"
                       value={filters.status}
@@ -336,39 +348,23 @@ const Tasks = () => {
                   <ul className="divide-y divide-gray-200">
                     {tasks.map((task) => (
                       <li key={task._id}>
-                        <Link to={`/tasks/${task._id}`} className="block hover:bg-gray-50">
-                          <div className="px-4 py-4 sm:px-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
+                        <div className="px-4 py-4 sm:px-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {task.title}
                                 </p>
-                                <p className="text-sm text-gray-500">
-                                  {task.description}
-                                </p>
-                              </div>
-                              <div className="ml-4 flex-shrink-0 flex items-center space-x-2">
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(task.status)}`}>
+                                <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(task.status)}`}>
                                   {task.status}
                                 </span>
                                 <span className={`ml-2 text-sm font-medium ${getPriorityColor(task.priority)}`}>
                                   {task.priority}
                                 </span>
                               </div>
-                            </div>
-                            <div className="mt-2 sm:flex sm:justify-between">
-                              <div className="sm:flex">
-                                <p className="flex items-center text-sm text-gray-500">
-                                  Type: {task.type}
-                                </p>
-                              </div>
-                              <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                {task.dueDate && (
-                                  <p>
-                                    Due: {new Date(task.dueDate).toLocaleDateString()}
-                                  </p>
-                                )}
-                              </div>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {task.description}
+                              </p>
                             </div>
                             <div className="ml-4 flex-shrink-0">
                               <div className="flex space-x-2">
@@ -393,7 +389,21 @@ const Tasks = () => {
                               </div>
                             </div>
                           </div>
-                        </Link>
+                          <div className="mt-2 sm:flex sm:justify-between">
+                            <div className="sm:flex">
+                              <p className="flex items-center text-sm text-gray-500">
+                                Type: {task.type}
+                              </p>
+                            </div>
+                            <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                              {task.dueDate && (
+                                <p>
+                                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </li>
                     ))}
                   </ul>
