@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+// Configure axios defaults
+axios.defaults.baseURL = API_BASE_URL;
+
 const AuthContext = createContext();
 
 const authReducer = (state, action) => {
@@ -66,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     if (localStorage.getItem('token')) {
       dispatch({ type: 'SET_LOADING' });
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/profile');
+        const res = await axios.get('/api/auth/profile', {});
         dispatch({
           type: 'LOGIN_SUCCESS',
           payload: {
@@ -88,7 +93,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await axios.post('/api/auth/register', formData);
       localStorage.setItem('token', res.data.token);
       dispatch({
         type: 'REGISTER_SUCCESS',
@@ -115,7 +120,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (formData) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const res = await axios.post('/api/auth/login', formData);
       localStorage.setItem('token', res.data.token);
       dispatch({
         type: 'LOGIN_SUCCESS',

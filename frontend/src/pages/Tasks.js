@@ -12,6 +12,8 @@ import {
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const Tasks = () => {
         }
       });
 
-      const res = await axios.get('http://localhost:5000/api/tasks', { params });
+      const res = await axios.get('/api/tasks', { params });
       setTasks(res.data.tasks);
       setPagination(prev => ({
         ...prev,
@@ -83,7 +85,7 @@ const Tasks = () => {
   const deleteTask = async (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/tasks/${taskId}`);
+        await axios.delete(`/api/tasks/${taskId}`);
         fetchTasks();
       } catch (error) {
         console.error('Error deleting task:', error);

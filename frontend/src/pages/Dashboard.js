@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
 import {
   PlusCircleIcon,
   DocumentTextIcon,
@@ -10,6 +10,8 @@ import {
   ExclamationCircleIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -29,7 +31,7 @@ const Dashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/tasks?limit=10');
+      const res = await axios.get('/api/tasks?limit=5');
       setTasks(res.data.tasks);
       
       // Calculate stats

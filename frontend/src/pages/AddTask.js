@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
 import {
   ArrowLeftIcon,
   PlusCircleIcon,
 } from '@heroicons/react/24/outline';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const AddTask = () => {
   const navigate = useNavigate();
@@ -33,7 +36,7 @@ const AddTask = () => {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:5000/api/tasks', {
+      await axios.post('/api/tasks', {
         ...formData,
         dueDate: dueDate || null,
       });
