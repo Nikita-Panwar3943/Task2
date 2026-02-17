@@ -1,69 +1,66 @@
-# 🚀 Deployment Guide - Vercel + Render
+# 🚀 Deployment Guide - Vercel Full Stack
 
 ## 📋 Overview
 
 Deploy your Task Management application with:
-- **Frontend**: Vercel (for React app)
-- **Backend**: Render (for Node.js API)
+- **Frontend**: Vercel (React app)
+- **Backend**: Vercel Serverless Functions (Node.js API)
 
 ---
 
-## 🎯 Step 1: Deploy Backend to Render
+## 🎯 Step 1: Backend Deployment (Vercel Serverless)
 
-### 1. Prepare Backend for Production
+### 1. Prepare Backend for Vercel
 
-1. **Update CORS for Production:**
+1. **Create vercel.json in backend folder:**
+   ```json
+   {
+     "version": 2,
+     "builds": [
+       {
+         "src": "index.js",
+         "use": "@vercel/node"
+       }
+     ],
+     "routes": [
+       {
+         "src": "/api/(.*)",
+         "dest": "/index.js"
+       }
+     ]
+   }
+   ```
+
+2. **Update backend CORS:**
    ```javascript
-   // In backend/index.js, update CORS:
+   // In backend/index.js
    app.use(cors({
-     origin: ['https://your-app-name.vercel.app', 'http://localhost:3000'],
+     origin: ['https://your-frontend-url.vercel.app'],
      credentials: true
    }));
    ```
 
-2. **Create Render Account:**
-   - Go to [Render](https://render.com)
-   - Create a free account
-   - Choose "New Web Service"
-
-3. **Connect GitHub:**
-   - Connect your GitHub repository
-   - Select your task2 repository
-   - Configure build settings:
-     ```
-     Build Command: npm install
-     Start Command: npm start
-     Node Version: 18
-     ```
-
-4. **Environment Variables:**
-   Add these environment variables in Render:
+3. **Deploy Backend to Vercel:**
+   ```bash
+   cd backend
+   vercel --prod
    ```
-   MONGO_URI=your_mongodb_atlas_connection_string
-   JWT_SECRET=your_long_secure_jwt_secret
-   PORT=5000
-   NODE_ENV=production
-   ```
-
-5. **Deploy:**
-   - Click "Create Web Service"
-   - Wait for deployment (2-5 minutes)
-   - Copy your Render URL (e.g., `https://your-app.onrender.com`)
+   
+4. **Get your backend URL** (e.g., `https://task2-kyf4.vercel.app`)
 
 ---
 
-## 🎯 Step 2: Deploy Frontend to Vercel
+## 🎯 Step 2: Frontend Deployment (Vercel)
 
 ### 1. Prepare Frontend for Production
 
 1. **Update API URL:**
    ```javascript
    // In frontend/src/context/AuthContext.js
-   // Replace all http://localhost:5000 with your Render URL
    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
    ```
 
-2. **Update all API calls:**
+2. **Update all API calls** to use relative paths:
    Replace `http://localhost:5000` with `${API_BASE_URL}` in:
    - `src/context/AuthContext.js`
    - `src/pages/Dashboard.js`
@@ -104,20 +101,26 @@ Deploy your Task Management application with:
 5. **Add Environment Variable:**
    In Vercel dashboard > Settings > Environment Variables:
    ```
-   REACT_APP_API_URL=https://your-backend-url.onrender.com
+   REACT_APP_API_URL=https://task2-kyf4.vercel.app
    ```
 
 ---
 
-## 🔧 Alternative: Using Vercel Configuration File
+## 🔧 Alternative: Monorepo Setup
 
-1. **Update vercel.json:**
+### Single Repository Structure
+
+1. **Create root vercel.json:**
    ```json
    {
      "version": 2,
      "builds": [
        {
-         "src": "package.json",
+         "src": "backend/index.js",
+         "use": "@vercel/node"
+       },
+       {
+         "src": "frontend/package.json",
          "use": "@vercel/static-build",
          "config": {
            "distDir": "build"
@@ -126,15 +129,18 @@ Deploy your Task Management application with:
      ],
      "routes": [
        {
+         "src": "/api/(.*)",
+         "dest": "/backend/index.js"
+       },
+       {
          "src": "/(.*)",
-         "dest": "/index.html",
-         "methods": ["GET", "HEAD", "OPTIONS"]
+         "dest": "/frontend/index.html"
        }
      ]
    }
    ```
 
-2. **Deploy with config:**
+2. **Deploy entire project:**
    ```bash
    vercel --prod
    ```
@@ -158,7 +164,7 @@ app.use(cors({
 
 ### 2. Test Your Application
 1. **Frontend URL**: `https://your-app-name.vercel.app`
-2. **Backend URL**: `https://your-app.onrender.com`
+2. **Backend URL**: `https://task2-kyf4.vercel.app`
 3. **Test registration, login, and task management**
 
 ---
@@ -178,18 +184,18 @@ If Vercel build fails:
 3. Check console logs in Vercel dashboard
 
 ### Backend Not Working
-If Render deployment fails:
+If backend deployment fails:
 1. Check environment variables
 2. Verify MongoDB connection string
-3. Check Render logs
+3. Check Vercel function logs
 
 ---
 
 ## 💡 Pro Tips
 
 1. **Custom Domain**: Add custom domain in Vercel dashboard
-2. **SSL**: Both Vercel and Render provide free SSL
-3. **Monitoring**: Use Vercel Analytics and Render metrics
+2. **SSL**: Vercel provides free SSL for both frontend and backend
+3. **Monitoring**: Use Vercel Analytics
 4. **Environment**: Use different variables for dev/prod
 
 ---
@@ -198,7 +204,7 @@ If Render deployment fails:
 
 Once deployed:
 - **Frontend**: `https://your-app-name.vercel.app`
-- **Backend**: `https://your-app.onrender.com`
+- **Backend**: `https://task2-kyf4.vercel.app`
 - **Database**: MongoDB Atlas (already configured)
 
 Your Task Management application will be live and accessible to users worldwide!
